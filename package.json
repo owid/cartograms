@@ -1,0 +1,37 @@
+{
+  "name": "population-cartogram",
+  "version": "1.0.0",
+  "description": "Population scaled cartogram - OWID",
+  "scripts": {
+    "clean": "rm -rf .parcel-cache && rm -rf dist",
+    "build": "npm run build:index",
+    "build:index": "parcel build index.html --dist-dir dist --public-url .",
+    "deploy": "npm run clean && npm run build && gh-pages -d dist",
+    "dev": "parcel index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/addu390/population-cartogram.git"
+  },
+  "keywords": [
+    "cartogram"
+  ],
+  "dependencies": {
+    "d3": "^7.4.3",
+    "d3-hexbin": "^0.2.2",
+    "topogram": "^1.0.1",
+    "topojson-client": "^3.1.0",
+    "topojson-server": "^3.0.1",
+    "topojson-simplify": "^3.0.3"
+  },
+  "author": "Adesh Nalpet Adimurthy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/addu390/population-cartogram/issues"
+  },
+  "homepage": "https://github.com/addu390/population-cartogram#readme",
+  "devDependencies": {
+    "gh-pages": "^2.2.0",
+    "parcel": "^2.4.1"
+  }
+}
