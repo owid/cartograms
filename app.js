@@ -1,5 +1,5 @@
 import { hexbin } from 'd3-hexbin'
-import * as topogram from "topogram";
+import cartogram from "./catogram"
 
 var exportJson
 
@@ -72,7 +72,7 @@ function plot_map(topo, pop, hexRadius) {
 
   var populationJson = getData(pop)
 
-  var cartogram = topogram.cartogram()
+  var topo_cartogram = cartogram()
     .projection(null)
     .properties(function (d) {
       return d.properties;
@@ -82,14 +82,14 @@ function plot_map(topo, pop, hexRadius) {
       return +currentValue
     });
 
-  cartogram.features(topo, topo.objects.tiles.geometries)
+  topo_cartogram.features(topo, topo.objects.tiles.geometries)
 
-  cartogram.value(function (d) {
+  topo_cartogram.value(function (d) {
     var currentValue = populationJson[d.properties.id][yearInput.value]
     return +currentValue
   });
 
-  var topoFeatures = cartogram(topo, topo.objects.tiles.geometries).features
+  var topoFeatures = topo_cartogram(topo, topo.objects.tiles.geometries).features
 
   exportJson = {
     "type": "FeatureCollection",

@@ -11,25 +11,6 @@ import pandas as pd
 from geojson import Feature, Polygon, MultiPolygon, FeatureCollection, dump
 
 
-def generate_population():
-    df_1 = pd.DataFrame(pd.read_csv("data/country-code.csv"))
-    df_2 = pd.DataFrame(pd.read_csv("data/world-population-unpd.csv"))
-
-    pd.to_numeric(df_2["future-population"])
-    df_2["future-population"] = df_2["future-population"].fillna(0)
-
-    pd.to_numeric(df_2["current-population"])
-    df_2["current-population"] = df_2["current-population"].fillna(0)
-
-    df_2["population"] = df_2["future-population"] + df_2["current-population"]
-    df_2["population"] = df_2["population"].astype('int')
-
-    df_2 = df_2.set_index(['name', 'code', 'year'])['population'].unstack()
-    df_3 = pd.merge(df_2, df_1, on=['name', 'name'])
-
-    df_3.to_csv('temp.csv')
-
-
 def generate_matrix(grid_filename, matrix_filename):
     with open(grid_filename, 'r') as f:
         input_array = [[int(float(num)) for num in line.split()] for line in f]
@@ -155,8 +136,7 @@ def generate_borders(cell_filename, border_filename):
 
     projected_geo_path = 'data/test2/projected_geo.json'
     topo_path = 'data/test2/topo.json'
-    os.system(
-        "npx geoproject 'd3.geoNaturalEarth1().fitSize([1250, 750], d)' < " + geo_path + " > " + projected_geo_path)
+    os.system("npx geoproject 'd3.geoNaturalEarth1().fitSize([1250, 750], d)' < " + geo_path + " > " + projected_geo_path)
     os.system("npx geo2topo tiles=" + projected_geo_path + " \
             | npx toposimplify -p 0.00005 \
             | npx topoquantize 1e9 > " + topo_path)
