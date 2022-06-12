@@ -48,8 +48,8 @@ const strokeWidth = 0.5
 
 function start() {
   let hexRadius = radiusInput.value
-  const topoData = d3.json('https://raw.githubusercontent.com/addu390/population-cartogram/master/data/population/2018/v2/topo.json');
-  const popData = d3.csv('https://raw.githubusercontent.com/addu390/population-cartogram/master/data/world-population-unpd-flat.csv');
+  const topoData = d3.json('https://raw.githubusercontent.com/owid/cartograms/main/data/population/2018/v2/topo.json');
+  const popData = d3.csv('https://raw.githubusercontent.com/owid/cartograms/main/data/world-population-unpd-flat.csv');
   Promise.all([topoData, popData]).then(res => {
     let [topoData, popData] = res;
 
@@ -185,10 +185,19 @@ function plot_map(topo, pop, hexRadius) {
 }
 
 function mover(d) {
-  d3.select(this)
+  d3.selectAll("." + this.getAttribute('class'))
+  // d3.select(this)
     .transition()
     .duration(10)
     .style("fill-opacity", 0.9);
+}
+
+function mout(d) {
+  d3.selectAll("." + this.getAttribute('class'))
+  // d3.select(this)
+    .transition()
+    .duration(10)
+    .style("fill-opacity", 1);
 }
 
 function mclickBase(d) {
@@ -234,13 +243,6 @@ function mclick(d) {
         .on("end", dragended))
       .raise();
   }
-}
-
-function mout(d) {
-  d3.select(this)
-    .transition()
-    .duration(10)
-    .style("fill-opacity", 1);
 }
 
 function dragstarted(event, d) {
