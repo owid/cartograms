@@ -1,12 +1,12 @@
 # World Population Cartogram 🗺
 
-Demo: [https://www.pyblog.xyz/population-cartogram](https://www.pyblog.xyz/population-cartogram/)
+Demo: [https://owid.github.io/cartograms](https://owid.github.io/cartograms)
 
 Wiki: A cartogram is a map in which the geometry of regions is distorted in order to convey the information of an alternate variable such as population. The region area will be inflated or deflated according to its numeric value
 
 World Population Cartogram from 1960 to 2060:
 
-<img src="https://github.com/addu390/population-cartogram/blob/master/images/cartogram.gif"/>
+<img src="https://github.com/owid/cartograms/blob/master/images/cartogram.gif"/>
 
 ## Project set-up
 
@@ -17,8 +17,8 @@ World Population Cartogram from 1960 to 2060:
 ## Dataset
 
 - [Raster grid](https://sedac.ciesin.columbia.edu/data/set/gpw-v4-national-identifier-grid-rev11) from SEDAC 
-- [Topojson](https://raw.githubusercontent.com/addu390/population-cartogram/master/data/test2/topo.json) - Max Roser's 2018 world population carogram by [@mattdzugan](https://github.com/mattdzugan/World-Population-Cartogram)
-- [Population Dataset](https://github.com/addu390/population-cartogram/blob/master/data/world-population-unpd-3.csv) from OWID (Our World in Data)
+- [Topojson](https://raw.githubusercontent.com/owid/cartograms/main/data/population/2018/v2/topo.json) - Max Roser's 2018 world population carogram by [@mattdzugan](https://github.com/mattdzugan/World-Population-Cartogram)
+- [Population Dataset](https://raw.githubusercontent.com/owid/cartograms/main/data/world-population-unpd-flat.csv) from OWID (Our World in Data)
 
 ## Download
 
@@ -35,6 +35,4 @@ The 2018 data is a future projection that the UN Population Division created las
 Other data – the US in 1776, the population of various metropolitan areas, and the population of some small countries – are mostly from Wikipedia.
 
 James A. Dougenik, Nicholas R. Chrisman & Duane R. Niemeyer (1985) AN ALGORITHM TO CONSTRUCT CONTINUOUS AREA CARTOGRAMS, The Professional Geographer, 37:1, 75-81, DOI: 10.1111/j.0033-0124.1985.00075.x
-
-M. T. Gastner, V. Seguy, and P. More, “Fast flow-based algorithm for creating density-equalizing map projections,” Proceedings of the National Academy of Sciences, vol. 115, no. 10, pp. E2156–E2164, Feb. 2018, doi: 10.1073/pnas.1712674115.
 ```
