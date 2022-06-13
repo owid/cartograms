@@ -1,8 +1,0 @@
-.idea
-.DS_Store
-__pycache__/
-matrix.csv
-node_modules
-package-lock.json
-dist
-.parcel-cache
