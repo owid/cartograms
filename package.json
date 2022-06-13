@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/addu390/population-cartogram.git"
+    "url": "git+https://github.com/owid/cartograms.git"
   },
   "keywords": [
     "cartogram"
@@ -28,9 +28,9 @@
   "author": "Adesh Nalpet Adimurthy",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/addu390/population-cartogram/issues"
+    "url": "https://github.com/owid/cartograms/issues"
   },
-  "homepage": "https://github.com/addu390/population-cartogram#readme",
+  "homepage": "https://github.com/owid/cartograms#readme",
   "devDependencies": {
     "gh-pages": "^2.2.0",
     "parcel": "^2.4.1"
