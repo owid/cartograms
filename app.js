@@ -12,6 +12,9 @@ let radiusButton = document.querySelector('input#select-radius');
 
 let downloadButton = document.querySelector('#download');
 
+let cellShapeButton = document.querySelector('#cell-shape');
+let cellShapeInput = document.querySelector('#cell-shape-option');
+
 let yearInput = document.querySelector('input#year');
 let yearButton = document.querySelector('input#select-year');
 
@@ -41,6 +44,11 @@ downloadButton.addEventListener('click', () => {
   }
 });
 
+cellShapeButton.addEventListener('click', () => {
+  cellShapeInput = document.querySelector('#cell-shape-option');
+  start()
+});
+
 const margin = { top: 15, right: 10, bottom: 15, left: 10 };
 const width = 1350 - margin.left - margin.right;
 const height = 750 - margin.top - margin.bottom;
@@ -48,20 +56,21 @@ const strokeWidth = 0.5
 
 function start() {
   let hexRadius = radiusInput.value
+  let cellShape = cellShapeInput.value
   const topoData = d3.json('https://raw.githubusercontent.com/owid/cartograms/main/data/population/2018/v2/topo.json');
   const popData = d3.csv('https://raw.githubusercontent.com/owid/cartograms/main/data/world-population-unpd-flat.csv');
   Promise.all([topoData, popData]).then(res => {
     let [topoData, popData] = res;
 
-    plot_map(topoData, popData, hexRadius);
+    plot_map(topoData, popData, hexRadius, cellShape);
     document.querySelector('#loader').classList.add("hide");
   });
 }
 
-function plot_map(topo, pop, hexRadius) {
-  let hexDistance = hexRadius * 1.5
+function plot_map(topo, pop, hexRadius, cellShape) {
+  let hexDistance = getRadius(hexRadius, cellShape)
   let cols = width / hexDistance
-  let rows = Math.ceil(height / hexDistance);
+  let rows = height / hexDistance;
   let pointGrid = d3.range(rows * cols).map(function (el, i) {
     return {
       x: Math.floor(i % cols) * hexDistance,
@@ -139,11 +148,11 @@ function plot_map(topo, pop, hexRadius) {
 
   svg.append('g').attr('id', 'hexes')
     .selectAll('.hex')
-    .data(newHexbin(pointGrid))
+    .data(getGridData(cellShape, newHexbin, pointGrid))
     .enter().append('path')
     .attr('class', 'hex')
-    .attr('transform', function (d) { return 'translate(' + d.x + ', ' + d.y + ')'; })
-    .attr('d', newHexbin.hexagon())
+    .attr('transform', getTransformation(cellShape))
+    .attr('d', getPath(cellShape, newHexbin, hexDistance))
     .style('fill', '#fff')
     .style('stroke', '#e0e0e0')
     .style('stroke-width', strokeWidth)
@@ -158,18 +167,16 @@ function plot_map(topo, pop, hexRadius) {
         return arr;
       }, [])
 
-      let hexPoints = newHexbin(usPoints)
-
       svg.append('g')
         .attr('id', 'hexes')
         .selectAll('.hex')
-        .data(hexPoints)
+        .data(getGridData(cellShape, newHexbin, usPoints))
         .enter().append('path')
         .attr('class', 'hex' + features[i].properties.id)
-        .attr('transform', function (d) { return 'translate(' + d.x + ', ' + d.y + ')'; })
+        .attr('transform', getTransformation(cellShape))
         .attr("x", function (d) { return d.x; })
         .attr("y", function (d) { return d.y; })
-        .attr('d', newHexbin.hexagon())
+        .attr('d', getPath(cellShape, newHexbin, hexDistance))
         .style('fill', colors[i % 19])
         .style('stroke', '#000')
         .style('stroke-width', strokeWidth)
@@ -253,14 +260,15 @@ function dragstarted(event, d) {
 }
 
 function dragged(event, d) {
+  let cellShape = document.querySelector('#cell-shape-option').value;
   let hexRadius = radiusInput.value
   var x = event.x
   var y = event.y
-  var grids = round(x, y, hexRadius);
+  var grids = round(x, y, hexRadius, cellShape);
   d3.select(this)
     .attr("x", d.x = grids[0])
     .attr("y", d.y = grids[1])
-    .attr('transform', function (d) { return 'translate(' + d.x + ', ' + d.y + ')'; })
+    .attr('transform', getTransformation(cellShape))
 }
 
 function dragended(event, d) {
@@ -270,21 +278,37 @@ function dragended(event, d) {
     .style('stroke', '#000');
 }
 
-function round(x, y, n) {
-  var gridx
-  var gridy
-  var factor = Math.sqrt(3) / 2
-  var d = n * 2
-  var sx = d * factor
-  var sy = n * 3
-  if (y % sy < n) {
-    gridy = y - (y % sy)
-    gridx = x - (x % sx)
-  } else {
-    gridy = y + (d - (n * factor) / 2) - (y % sy);
-    gridx = x + (n * factor) - (x % sx);
+function round(x, y, n, cellShape) {
+  if (cellShape == "Hexagon") {
+    var gridx
+    var gridy
+    var factor = Math.sqrt(3) / 2
+    var d = n * 2
+    var sx = d * factor
+    var sy = n * 3
+    if (y % sy < n) {
+      gridy = y - (y % sy)
+      gridx = x - (x % sx)
+    } else {
+      gridy = y + (d - (n * factor) / 2) - (y % sy);
+      gridx = x + (n * factor) - (x % sx);
+    }
+    return [gridx, gridy]
+  } else if (cellShape == "Square") {
+    var gridx
+    var gridy
+    var factor = 2
+    var sx = n * factor
+    var sy = n * factor
+    if (y % sy < n) {
+      gridy = y - (y % sy)
+      gridx = x - (x % sx)
+    } else {
+      gridy = y + (n * factor) - (y % sy);
+      gridx = x + (n * factor) - (x % sx);
+    }
+    return [gridx, gridy]
   }
-  return [gridx, gridy]
 }
 
 function getData(data) {
@@ -303,6 +327,50 @@ function downloadObjectAsJson(exportObj, exportName) {
   document.body.appendChild(downloadAnchorNode);
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
+}
+
+function rightRoundedRect(x, y, width, height, radius) {
+  return "M" + x + "," + y
+       + "h" + (width - radius)
+       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
+       + "v" + (height - 2 * radius)
+       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
+       + "h" + (radius - width)
+       + "z";
+}
+
+function getRadius(radius, cellShape) {
+  if (cellShape == "Hexagon") {
+    return radius;
+  } else if (cellShape == "Square") {
+    return radius;
+  }
+}
+
+function getGridData(cellShape, bin, grid) {
+  if (cellShape == "Hexagon") {
+    return bin(grid);
+  } else if (cellShape == "Square") {
+    return grid;
+  }
+}
+
+function getPath(cellShape, bin, distance) {
+  if (cellShape == "Hexagon") {
+    return bin.hexagon()
+  } else if (cellShape == "Square") {
+    return function(d) {
+      return rightRoundedRect(d.x/2, d.y/2, distance, distance, 0);
+    };
+  }
+}
+
+function getTransformation(cellShape) {
+  if (cellShape == "Hexagon") {
+    return function (d) { return 'translate(' + d.x + ', ' + d.y + ')'; }
+  } else if (cellShape == "Square") {
+    return function (d) { return 'translate(' + d.x/2 + ', ' + d.y/2 + ')'; };
+  }
 }
 
 start()
