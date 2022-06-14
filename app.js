@@ -193,7 +193,7 @@ function plot_map(topo, pop, hexRadius, cellShape) {
 
 function mover(d) {
   d3.selectAll("." + this.getAttribute('class'))
-  // d3.select(this)
+    // d3.select(this)
     .transition()
     .duration(10)
     .style("fill-opacity", 0.9);
@@ -201,7 +201,7 @@ function mover(d) {
 
 function mout(d) {
   d3.selectAll("." + this.getAttribute('class'))
-  // d3.select(this)
+    // d3.select(this)
     .transition()
     .duration(10)
     .style("fill-opacity", 1);
@@ -297,15 +297,14 @@ function round(x, y, n, cellShape) {
   } else if (cellShape == "Square") {
     var gridx
     var gridy
-    var factor = 2
-    var sx = n * factor
-    var sy = n * factor
+    var sx = n * 2
+    var sy = n * 2
     if (y % sy < n) {
       gridy = y - (y % sy)
       gridx = x - (x % sx)
     } else {
-      gridy = y + (n * factor) - (y % sy);
-      gridx = x + (n * factor) - (x % sx);
+      gridy = y + (n / 1) - (y % sy)
+      gridx = x - (x % sx)
     }
     return [gridx, gridy]
   }
@@ -331,17 +330,17 @@ function downloadObjectAsJson(exportObj, exportName) {
 
 function rightRoundedRect(x, y, width, height, radius) {
   return "M" + x + "," + y
-       + "h" + (width - radius)
-       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
-       + "v" + (height - 2 * radius)
-       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
-       + "h" + (radius - width)
-       + "z";
+    + "h" + (width - radius)
+    + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
+    + "v" + (height - 2 * radius)
+    + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
+    + "h" + (radius - width)
+    + "z";
 }
 
 function getRadius(radius, cellShape) {
   if (cellShape == "Hexagon") {
-    return radius;
+    return radius * 1.5;
   } else if (cellShape == "Square") {
     return radius;
   }
@@ -359,8 +358,8 @@ function getPath(cellShape, bin, distance) {
   if (cellShape == "Hexagon") {
     return bin.hexagon()
   } else if (cellShape == "Square") {
-    return function(d) {
-      return rightRoundedRect(d.x/2, d.y/2, distance, distance, 0);
+    return function (d) {
+      return rightRoundedRect(d.x / 2, d.y / 2, distance, distance, 0);
     };
   }
 }
@@ -369,7 +368,7 @@ function getTransformation(cellShape) {
   if (cellShape == "Hexagon") {
     return function (d) { return 'translate(' + d.x + ', ' + d.y + ')'; }
   } else if (cellShape == "Square") {
-    return function (d) { return 'translate(' + d.x/2 + ', ' + d.y/2 + ')'; };
+    return function (d) { return 'translate(' + d.x / 2 + ', ' + d.y / 2 + ')'; };
   }
 }
 
