@@ -12,56 +12,6 @@
 </head>
 
 <body>
-  <div id="mySidenav" class="sidenav">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-    <div class="container-fluid">
-      <h5>Making a World Cartogram</h5>
-      <hr>
-      <span>A cartogram is a map in which the geometry of regions is distorted in order to convey the information of an
-        alternate variable such as population. The region area will be inflated or deflated according to its numeric
-        value</span>
-
-      <h5 class="padding-10"></h5>
-      <ul>
-        <li><span><b>Radius:</b> Reduce the hexagonal radius for higher resolution and increase it for faster load
-            time.</span></li>
-        <li><span><b>Year:</b> Choose a year between 1950 and 2100; the population cartogram is scaled from the year
-            2018. </span></li>
-        <li><span><b>Download:</b> Supported file types are SVG and GeoJSON; the geojson may not follow the right-hand
-            rule. </span></li>
-        <li><span><b>Add/Remove cells:</b> Double-click to add, remove or replace hexagonal cells and use the color
-            palette to change colors. </span></li>
-        <li><span><b>Drag and Drop:</b> Move cells across the point-top hex-grid </span></li>
-      </ul>
-
-      Looking to contribute? <span><a href="https://github.com/addu390/population-cartogram">Fork me on Github</a> <br>
-        Resources to get you started: <a
-          href="https://github.com/addu390/population-cartogram/blob/master/data/world-population-unpd-flat.csv">Population
-          Dataset</a>,
-        <a
-          href="https://github.com/addu390/population-cartogram/blob/master/data/population/2018/v2/topo.json">Topojson</a>
-        and
-        <a
-          href="https://github.com/addu390/population-cartogram/blob/master/data/population/2018/v2/geo.json">Geojson</a></span>
-
-      <h5 class="padding-10"></h5>
-      <span><b>License:</b> Our World In Data <a
-          href="https://ourworldindata.org/faqs#how-is-our-work-copyrighted">copyrights their work</a> under a <a
-          href="https://creativecommons.org/licenses/by/4.0/legalcode">CC-BY license</a>, so be sure to provide
-        attribution when using this Cartogram. Any code ('.py', '.js', '.html') found in this repository, is available
-        for use without restriction (<a
-          href="https://github.com/addu390/population-cartogram/blob/master/LICENSE">MIT</a>)</span>
-
-      <h5 class="padding-10"></h5>
-      <span>
-        <b>Citation</b>: Max Roser (2018) – "The map we need if we want to think about how global living conditions are
-        changing".
-        Published online at OurWorldInData.org. Retrieved from: <a target="_blank"
-          href="https://ourworldindata.org/world-population-cartogram">https://ourworldindata.org/world-population-cartogram</a>
-      </span>
-    </div>
-  </div>
-
   <div class="content container-fluid text-center">
 
     <div id="page-loader" class="center"></div>
@@ -70,10 +20,7 @@
       <div class="loader"></div>
     </div>
 
-    <button type="button" class="btn btn-sm left btn-outline-dark info-button" style="margin-left: 35px;"
-      onclick="openNav()">Info</button>
-
-    <input class="left form-control form-control-sm round-right" style="width: 50px; margin-left: 10px;" type="number"
+    <input class="left form-control form-control-sm round-right" style="width: 50px; margin-left: 40px;" type="number"
       id="radius" name="radius" min="1" max="12" value="8" />
     <input type="button" value="Select Radius" class="left btn btn-sm btn-success round-left"
       id="select-radius"></input>
@@ -89,7 +36,7 @@
       <option>Square</option>
       <option>Hexagon</option>
     </select>
-    <button class="btn btn-sm btn-success left round-left"><a id="cell-shape" href="#">Reload</button>
+    <button class="btn btn-sm btn-success left round-left"><a id="cell-shape" href="#">Select Shape</button>
 
     <select id="download-option" class="left form-select form-select-sm round-right"
       style="width: 100px; margin-left: 10px;">
@@ -135,14 +82,6 @@
     <script src="app.js" type="module"></script>
   </div>
   <script>
-    function openNav() {
-      document.getElementById("mySidenav").style.width = "450px";
-    }
-
-    function closeNav() {
-      document.getElementById("mySidenav").style.width = "0";
-    }
-
     document.onreadystatechange = function () {
       if (document.readyState !== "complete") {
         document.querySelector("body").style.visibility = "hidden";
