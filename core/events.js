@@ -1,5 +1,4 @@
-import { getNearestSlot } from "./shaper";
-import { getTransformation } from "./shaper";
+import { getTransformation, getNearestSlot } from "./shaper";
 import { strokeWidth } from "./constants";
 import { cellAction } from "./constants";
 

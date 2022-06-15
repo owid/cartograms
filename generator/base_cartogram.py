@@ -50,7 +50,8 @@ def generate_borders(cell_filename, border_filename):
         union_polygon = unary_union(country_poly_df.tolist())
 
         if not population_df.loc[population_df['code'] == countryCode].empty:
-            current = population_df.loc[population_df['code'] == countryCode].values[0][4]
+            current = population_df.loc[population_df['code']
+                                        == countryCode].values[0][4]
         else:
             print(countryCode)
 
@@ -58,7 +59,8 @@ def generate_borders(cell_filename, border_filename):
             union_polygon = orient(union_polygon, -1)
             polygon_id = polygon_id + 1
 
-            border_df = pd.DataFrame(union_polygon.exterior.coords[:], columns=["X", "Y"])
+            border_df = pd.DataFrame(
+                union_polygon.exterior.coords[:], columns=["X", "Y"])
             border_df['PolygonID'] = polygon_id
             border_df['CountryCode'] = countryCode
             border_df['BorderType'] = "Exterior"
@@ -71,7 +73,8 @@ def generate_borders(cell_filename, border_filename):
             if len(union_polygon.interiors) > 0:
                 for int_poly in union_polygon.interiors:
                     polygon_id = polygon_id + 1
-                    int_border_df = pd.DataFrame(int_poly.coords[:], columns=["X", "Y"])
+                    int_border_df = pd.DataFrame(
+                        int_poly.coords[:], columns=["X", "Y"])
                     int_border_df['PolygonID'] = polygon_id
                     int_border_df['CountryCode'] = countryCode
                     int_border_df['BorderType'] = "Interior"
@@ -93,7 +96,8 @@ def generate_borders(cell_filename, border_filename):
             for geom in union_polygon.geoms:
                 geom = orient(geom, -1)
                 polygon_id = polygon_id + 1
-                border_df = pd.DataFrame(geom.exterior.coords[:], columns=["X", "Y"])
+                border_df = pd.DataFrame(
+                    geom.exterior.coords[:], columns=["X", "Y"])
                 border_df['PolygonID'] = polygon_id
                 border_df['CountryCode'] = countryCode
                 border_df['BorderType'] = "Exterior"
@@ -106,7 +110,8 @@ def generate_borders(cell_filename, border_filename):
                 if len(geom.interiors) > 0:
                     for int_poly in geom.interiors:
                         polygon_id = polygon_id + 1
-                        int_border_df = pd.DataFrame(int_poly.coords[:], columns=["X", "Y"])
+                        int_border_df = pd.DataFrame(
+                            int_poly.coords[:], columns=["X", "Y"])
                         int_border_df['PolygonID'] = polygon_id
                         int_border_df['CountryCode'] = countryCode
                         int_border_df['BorderType'] = "Interior"
@@ -136,7 +141,8 @@ def generate_borders(cell_filename, border_filename):
 
     projected_geo_path = 'data/test2/projected_geo.json'
     topo_path = 'data/test2/topo.json'
-    os.system("npx geoproject 'd3.geoNaturalEarth1().fitSize([1250, 750], d)' < " + geo_path + " > " + projected_geo_path)
+    os.system(
+        "npx geoproject 'd3.geoNaturalEarth1().fitSize([1250, 750], d)' < " + geo_path + " > " + projected_geo_path)
     os.system("npx geo2topo tiles=" + projected_geo_path + " \
             | npx toposimplify -p 0.00005 \
             | npx topoquantize 1e9 > " + topo_path)
@@ -161,11 +167,13 @@ def generate_plot(cell_filename, border_filename):
     patches = []
 
     for i in range(0, n):
-        patches.append(matplotlib.patches.Rectangle((cells.loc[i, "X"] + .5, cells.loc[i, "Y"] + .5), 0.2, 0.2, color="#111111"))
+        patches.append(matplotlib.patches.Rectangle(
+            (cells.loc[i, "X"] + .5, cells.loc[i, "Y"] + .5), 0.2, 0.2, color="#111111"))
     ax.add_collection(PatchCollection(patches, alpha=0.1))
 
     for p in np.unique(borders["PolygonID"]):
-        ax.plot(borders.loc[borders["PolygonID"] == p, "X"], borders.loc[borders["PolygonID"] == p, "Y"])
+        ax.plot(borders.loc[borders["PolygonID"] == p, "X"],
+                borders.loc[borders["PolygonID"] == p, "Y"])
     plt.show()
 
 

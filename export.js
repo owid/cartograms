@@ -1,4 +1,4 @@
-import { outputFileType } from "./constants";
+import { outputFileType } from "./core/constants";
 
 export function download(fileType, year) {
     var filename = "cartogram" + year;
