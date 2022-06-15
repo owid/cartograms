@@ -1,6 +1,7 @@
 import { getNearestSlot } from "./shaper";
 import { getTransformation } from "./shaper";
 import { strokeWidth } from "./constants";
+import { cellAction } from "./constants";
 
 export function mover(d) {
     d3.selectAll("." + this.getAttribute('class'))
@@ -20,46 +21,52 @@ export function mout(d) {
 
 export function mclickBase(d) {
     let selectElement = document.querySelector('#cell-option');
-    if (selectElement.value == "Remove") {
-        d3.select(this)
-            .style('fill', '#fff')
-            .style('stroke', '#e0e0e0')
-            .style('stroke-width', strokeWidth)
-            .lower();
-    } else {
-        let colorElement = document.querySelector('#color-option');
-        d3.select(this)
-            .style('stroke-width', strokeWidth)
-            .style('fill', colorElement.value)
-            .style('stroke', '#000')
-            .on("mouseover", mover)
-            .on("mouseout", mout)
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended))
-            .raise();
+    switch (selectElement.value) {
+        case cellAction.Remove:
+            d3.select(this)
+                .style('fill', '#fff')
+                .style('stroke', '#e0e0e0')
+                .style('stroke-width', strokeWidth)
+                .lower();
+            break;
+        case cellAction.Add:
+            let colorElement = document.querySelector('#color-option');
+            d3.select(this)
+                .style('stroke-width', strokeWidth)
+                .style('fill', colorElement.value)
+                .style('stroke', '#000')
+                .on("mouseover", mover)
+                .on("mouseout", mout)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended))
+                .raise();
+            break;
     }
 }
 
 export function mclick(d) {
     let selectElement = document.querySelector('#cell-option');
-    if (selectElement.value == "Remove") {
-        d3.select(this)
-            .remove()
-    } else {
-        let colorElement = document.querySelector('#color-option');
-        d3.select(this)
-            .style('stroke-width', strokeWidth)
-            .style('fill', colorElement.value)
-            .style('stroke', '#000')
-            .on("mouseover", mover)
-            .on("mouseout", mout)
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended))
-            .raise();
+    switch (selectElement.value) {
+        case cellAction.Remove:
+            d3.select(this)
+                .remove()
+            break;
+        case cellAction.Add:
+            let colorElement = document.querySelector('#color-option');
+            d3.select(this)
+                .style('stroke-width', strokeWidth)
+                .style('fill', colorElement.value)
+                .style('stroke', '#000')
+                .on("mouseover", mover)
+                .on("mouseout", mout)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended))
+                .raise();
+            break;
     }
 }
 

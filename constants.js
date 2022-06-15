@@ -5,3 +5,18 @@ export const margin = { top: 15, right: 10, bottom: 15, left: 10 };
 export const width = 1350 - margin.left - margin.right;
 export const height = 750 - margin.top - margin.bottom;
 export const strokeWidth = 0.5;
+
+export const cellAction = {
+    Add: 'Add',
+    Remove: 'Remove'
+};
+
+export const cellPolygon = {
+    Hexagon: 'Hexagon',
+    Square: 'Square'
+};
+
+export const outputFileType = {
+    SVG: 'SVG',
+    GeoJSON: 'GeoJSON'
+};
