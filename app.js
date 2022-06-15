@@ -42,8 +42,8 @@ function load() {
   let cellShape = cellShapeInput.value
   let year = yearInput.value;
   
-  const topoData = d3.json('https://raw.githubusercontent.com/owid/cartograms/main/data/base/2018/v2/topo.json');
-  const popData = d3.csv('https://raw.githubusercontent.com/owid/cartograms/main/data/population/unpd-flat.csv');
+  const topoData = d3.json('https://raw.githubusercontent.com/owid/cartograms/feature/square-grid/data/base/2018/v2/topo.json');
+  const popData = d3.csv('https://raw.githubusercontent.com/owid/cartograms/feature/square-grid/data/population/unpd-flat.csv');
   
   Promise.all([topoData, popData]).then(res => {
     let [topoData, popData] = res;
