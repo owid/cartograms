@@ -43,10 +43,10 @@ function load() {
   let year = yearInput.value;
 
   const topoData = d3.json(
-    "https://raw.githubusercontent.com/owid/cartograms/feature/square-grid/data/base/2018/v2/topo.json"
+    "https://raw.githubusercontent.com/owid/cartograms/main/data/base/2018/v2/topo.json"
   );
   const popData = d3.csv(
-    "https://raw.githubusercontent.com/owid/cartograms/feature/square-grid/data/population/unpd-flat.csv"
+    "https://raw.githubusercontent.com/owid/cartograms/main/data/population/unpd-flat.csv"
   );
 
   Promise.all([topoData, popData]).then((res) => {
