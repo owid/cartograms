@@ -14,9 +14,15 @@ export default function () {
     };
 
   function cartogram(topology, geometries) {
-
     topology = copy(topology);
-    var tf = transformer(topology.transform), x, y, len1, i1, out1, len2 = topology.arcs.length, i2 = 0,
+    var tf = transformer(topology.transform),
+      x,
+      y,
+      len1,
+      i1,
+      out1,
+      len2 = topology.arcs.length,
+      i2 = 0,
       projectedArcs = new Array(len2);
     while (i2 < len2) {
       x = 0;
@@ -25,27 +31,30 @@ export default function () {
       i1 = 0;
       out1 = new Array(len1);
       while (i1 < len1) {
-        topology.arcs[i2][i1][0] = (x += topology.arcs[i2][i1][0]);
-        topology.arcs[i2][i1][1] = (y += topology.arcs[i2][i1][1]);
-        out1[i1] = projection === null ? tf(topology.arcs[i2][i1]) : projection(tf(topology.arcs[i2][i1]));
+        topology.arcs[i2][i1][0] = x += topology.arcs[i2][i1][0];
+        topology.arcs[i2][i1][1] = y += topology.arcs[i2][i1][1];
+        out1[i1] =
+          projection === null
+            ? tf(topology.arcs[i2][i1])
+            : projection(tf(topology.arcs[i2][i1]));
         i1++;
       }
       projectedArcs[i2++] = out1;
-
     }
 
-    var path = geoPath()
-      .projection(null);
+    var path = geoPath().projection(null);
 
-    var objects = object(projectedArcs, { type: "GeometryCollection", geometries: geometries })
-      .geometries.map(function (geom) {
-        return {
-          type: "Feature",
-          id: geom.id,
-          properties: properties.call(null, geom, topology),
-          geometry: geom
-        };
-      });
+    var objects = object(projectedArcs, {
+      type: "GeometryCollection",
+      geometries: geometries,
+    }).geometries.map(function (geom) {
+      return {
+        type: "Feature",
+        id: geom.id,
+        properties: properties.call(null, geom, topology),
+        geometry: geom,
+      };
+    });
 
     var values = objects.map(value),
       totalValue = sum(values);
@@ -63,7 +72,7 @@ export default function () {
         meta = objects.map(function (o, j) {
           var area = Math.abs(areas[j]),
             v = +values[j],
-            desired = totalArea * v / totalValue,
+            desired = (totalArea * v) / totalValue,
             radius = Math.sqrt(area / Math.PI),
             mass = Math.sqrt(desired / Math.PI) - radius,
             sizeError = Math.max(area, desired) / Math.min(area, desired);
@@ -77,14 +86,30 @@ export default function () {
             desired: desired,
             radius: radius,
             mass: mass,
-            sizeError: sizeError
+            sizeError: sizeError,
           };
         });
 
       var sizeError = sizeErrorsTot / sizeErrorsNum,
         forceReductionFactor = 1 / (1 + sizeError);
 
-      var len1, i1, delta, len2 = projectedArcs.length, i2 = 0, delta, len3, i3, centroid, mass, radius, rSquared, dx, dy, distSquared, dist, Fij;
+      var len1,
+        i1,
+        delta,
+        len2 = projectedArcs.length,
+        i2 = 0,
+        delta,
+        len3,
+        i3,
+        centroid,
+        mass,
+        radius,
+        rSquared,
+        dx,
+        dy,
+        distSquared,
+        dist,
+        Fij;
       while (i2 < len2) {
         len1 = projectedArcs[i2].length;
         i1 = 0;
@@ -96,22 +121,21 @@ export default function () {
             centroid = meta[i3].centroid;
             mass = meta[i3].mass;
             radius = meta[i3].radius;
-            rSquared = (radius * radius);
+            rSquared = radius * radius;
             dx = projectedArcs[i2][i1][0] - centroid[0];
             dy = projectedArcs[i2][i1][1] - centroid[1];
             distSquared = dx * dx + dy * dy;
             dist = Math.sqrt(distSquared);
-            Fij = (dist > radius)
-              ? mass * radius / dist
-              : mass *
-              (distSquared / rSquared) *
-              (4 - 3 * dist / radius);
-            delta[0] += (Fij * cosArctan(dy, dx));
-            delta[1] += (Fij * sinArctan(dy, dx));
+            Fij =
+              dist > radius
+                ? (mass * radius) / dist
+                : mass * (distSquared / rSquared) * (4 - (3 * dist) / radius);
+            delta[0] += Fij * cosArctan(dy, dx);
+            delta[1] += Fij * sinArctan(dy, dx);
             i3++;
           }
-          projectedArcs[i2][i1][0] += (delta[0] * forceReductionFactor);
-          projectedArcs[i2][i1][1] += (delta[1] * forceReductionFactor);
+          projectedArcs[i2][i1][0] += delta[0] * forceReductionFactor;
+          projectedArcs[i2][i1][1] += delta[1] * forceReductionFactor;
           i1++;
         }
         i2++;
@@ -122,32 +146,32 @@ export default function () {
 
     return {
       features: objects,
-      arcs: projectedArcs
+      arcs: projectedArcs,
     };
   }
 
   function cosArctan(dx, dy) {
     if (dy === 0) return 0;
     var div = dx / dy;
-    return (dy > 0) ?
-      (1 / Math.sqrt(1 + (div * div))) :
-      (-1 / Math.sqrt(1 + (div * div)));
+    return dy > 0
+      ? 1 / Math.sqrt(1 + div * div)
+      : -1 / Math.sqrt(1 + div * div);
   }
 
   function sinArctan(dx, dy) {
     if (dy === 0) return 1;
     var div = dx / dy;
-    return (dy > 0) ?
-      (div / Math.sqrt(1 + (div * div))) :
-      (-div / Math.sqrt(1 + (div * div)));
+    return dy > 0
+      ? div / Math.sqrt(1 + div * div)
+      : -div / Math.sqrt(1 + div * div);
   }
 
   function copy(o) {
-    return (o instanceof Array)
+    return o instanceof Array
       ? o.map(copy)
-      : (typeof o === "string" || typeof o === "number")
-        ? o
-        : copyObject(o);
+      : typeof o === "string" || typeof o === "number"
+      ? o
+      : copyObject(o);
   }
 
   function copyObject(o) {
@@ -185,20 +209,24 @@ export default function () {
       LineString: line,
       MultiLineString: polygon,
       Polygon: polygon,
-      MultiPolygon: function (arcs) { return arcs.map(polygon); }
+      MultiPolygon: function (arcs) {
+        return arcs.map(polygon);
+      },
     };
 
     return o.type === "GeometryCollection"
-      ? (o = Object.create(o), o.geometries = o.geometries.map(geometry), o)
+      ? ((o = Object.create(o)), (o.geometries = o.geometries.map(geometry)), o)
       : geometry(o);
   }
 
   function reverse(array, n) {
-    var t, j = array.length, i = j - n; while (i < --j) t = array[i], array[i++] = array[j], array[j] = t;
+    var t,
+      j = array.length,
+      i = j - n;
+    while (i < --j) (t = array[i]), (array[i++] = array[j]), (array[j] = t);
   }
 
-  cartogram.path = geoPath()
-    .projection(null);
+  cartogram.path = geoPath().projection(null);
 
   cartogram.iterations = function (i) {
     if (arguments.length) {
@@ -234,8 +262,8 @@ export default function () {
       properties: properties.call(null, geom, topology),
       geometry: {
         type: geom.type,
-        coordinates: topoFeature(topology, geom).geometry.coordinates
-      }
+        coordinates: topoFeature(topology, geom).geometry.coordinates,
+      },
     };
   };
 
@@ -258,10 +286,9 @@ export default function () {
     return function () {
       return x;
     };
-  };
+  }
 
-
-  var transformer = cartogram.transformer = function (tf) {
+  var transformer = (cartogram.transformer = function (tf) {
     var kx = tf.scale[0],
       ky = tf.scale[1],
       dx = tf.translate[0],
@@ -276,7 +303,7 @@ export default function () {
     };
 
     return transform;
-  };
+  });
 
   return cartogram;
-};
+}
