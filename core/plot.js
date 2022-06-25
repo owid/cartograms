@@ -30,6 +30,9 @@ export function render(topo, populationData, radius, cellShape, year) {
   });
 
   var populationJson = indexByCode(populationData);
+  var totalPopulation = getTotalPopulation(populationData, year);
+
+  console.log(totalPopulation);
 
   var topoCartogram = cartogram()
     .projection(null)
@@ -86,6 +89,7 @@ export function render(topo, populationData, radius, cellShape, year) {
     .on("click", mclickBase);
 
   let features = flattenFeatures(topoFeatures);
+  let cellCount = 0;
   for (let i = 0; i < features.length; i++) {
     for (let j = 0; j < features[i].coordinates.length; j++) {
       var polygonPoints = features[i].coordinates[j];
@@ -94,6 +98,7 @@ export function render(topo, populationData, radius, cellShape, year) {
         if (d3.polygonContains(polygonPoints, [el.x, el.y])) arr.push(el);
         return arr;
       }, []);
+      cellCount = cellCount + tessellatedPoints.length;
 
       svg
         .append("g")
@@ -126,6 +131,8 @@ export function render(topo, populationData, radius, cellShape, year) {
         );
     }
   }
+
+  setCellSize(totalPopulation, cellCount);
 }
 
 function indexByCode(data) {
@@ -134,6 +141,22 @@ function indexByCode(data) {
     obj[data[x].code] = data[x];
   }
   return obj;
+}
+
+function getTotalPopulation(data, year) {
+  var total = 0;
+  for (var x in data) {
+    var count = data[x][year];
+    if (!isNaN(count)) {
+      total = total + Number(data[x][year]);
+    }
+  }
+  return total;
+}
+
+function setCellSize(totalPopulation, cellCount) {
+  document.getElementById("cell-size").value =
+    (totalPopulation / (cellCount * 1000000)).toFixed(1) + "M";
 }
 
 function flattenFeatures(topoFeatures) {
