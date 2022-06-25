@@ -6,6 +6,10 @@
   border-radius: 0 5px 5px 0;
 }
 
+.round-none {
+  border-radius: 0;
+}
+
 .footer {
   height: 35px;
   background-color: #fff;
@@ -42,7 +46,7 @@
   position: fixed;
 }
 
-#download, #cell-shape {
+#select-download, #select-cell-shape {
   color: #fff;
   text-decoration: none;
 }

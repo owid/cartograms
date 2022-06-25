@@ -519,9 +519,11 @@ var _plot = require("./core/plot");
 document.querySelector("#loader").classList.add("hide");
 let radiusInput = document.querySelector("input#radius");
 let radiusButton = document.querySelector("input#select-radius");
-let downloadButton = document.querySelector("#download");
-let cellShapeButton = document.querySelector("#cell-shape");
-let cellShapeInput = document.querySelector("#cell-shape-option");
+let cellScaleInput = document.querySelector("#cell-scale");
+let cellScaleButton = document.querySelector("input#select-cell-scale");
+let downloadButton = document.querySelector("#select-download");
+let cellShapeInput = document.querySelector("#cell-shape");
+let cellShapeButton = document.querySelector("#select-cell-shape");
 let yearInput = document.querySelector("input#year");
 let yearButton = document.querySelector("input#select-year");
 radiusButton.addEventListener("click", ()=>{
@@ -535,17 +537,23 @@ yearButton.addEventListener("click", ()=>{
     load();
 });
 downloadButton.addEventListener("click", ()=>{
-    let fileType = document.querySelector("#download-option").value;
+    let fileType = document.querySelector("#download").value;
     _export.download(fileType, yearInput.value);
 });
 cellShapeButton.addEventListener("click", ()=>{
-    cellShapeInput = document.querySelector("#cell-shape-option");
+    cellShapeInput = document.querySelector("#cell-shape");
+    document.querySelector("#loader").classList.remove("hide");
+    load();
+});
+cellScaleButton.addEventListener("click", ()=>{
+    cellScaleInput = document.querySelector("#cell-scale");
     document.querySelector("#loader").classList.remove("hide");
     load();
 });
 function load() {
-    let hexRadius = radiusInput.value;
+    let cellRadius = radiusInput.value;
     let cellShape = cellShapeInput.value;
+    let cellScale = cellScaleInput.value;
     let year = yearInput.value;
     const topoData1 = d3.json("https://raw.githubusercontent.com/owid/cartograms/main/data/base/2018/v2/topo.json");
     const popData1 = d3.csv("https://raw.githubusercontent.com/owid/cartograms/main/data/population/unpd-flat.csv");
@@ -554,7 +562,12 @@ function load() {
         popData1
     ]).then((res)=>{
         let [topoData, popData] = res;
-        _plot.render(topoData, popData, hexRadius, cellShape, year);
+        let cellDetails = {
+            radius: cellRadius,
+            shape: cellShape,
+            scale: cellScale
+        };
+        _plot.render(topoData, popData, cellDetails, year);
         document.querySelector("#loader").classList.add("hide");
     });
 }
@@ -567,12 +580,13 @@ parcelHelpers.export(exports, "download", ()=>download
 );
 var _constants = require("./core/constants");
 function download(fileType, year) {
+    console.log(fileType, year);
     var filename = "cartogram" + year;
     switch(fileType){
         case _constants.outputFileType.GeoJSON:
             downloadObjectAsJson(exportJson, filename);
         case _constants.outputFileType.SVG:
-            d3.select("#download").each(function() {
+            d3.select("#select-download").each(function() {
                 d3.select(this).attr("href", "data:application/octet-stream;base64," + btoa(d3.select("#container").html())).attr("download", filename + ".svg");
             });
     }
@@ -605,6 +619,8 @@ parcelHelpers.export(exports, "cellAction", ()=>cellAction
 parcelHelpers.export(exports, "cellPolygon", ()=>cellPolygon
 );
 parcelHelpers.export(exports, "outputFileType", ()=>outputFileType
+);
+parcelHelpers.export(exports, "cellScale", ()=>cellScale
 );
 const colors = [
     "#1abc9c",
@@ -649,6 +665,10 @@ const outputFileType = {
     SVG: "SVG",
     GeoJSON: "GeoJSON"
 };
+const cellScale = {
+    Fixed: "Fixed",
+    Fluid: "Fluid"
+};
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
@@ -690,6 +710,7 @@ parcelHelpers.export(exports, "render", ()=>render
 var _d3Hexbin = require("d3-hexbin");
 var _catogram = require("./catogram");
 var _catogramDefault = parcelHelpers.interopDefault(_catogram);
+var _util = require("./util");
 var _shaper = require("./shaper");
 var _events = require("./events");
 var _constants = require("./constants");
@@ -697,8 +718,11 @@ var exportJson = {
     type: "FeatureCollection",
     features: []
 };
-function render(topo, populationData, radius, cellShape, year) {
-    let shapeDistance = _shaper.getRadius(radius, cellShape);
+function render(topo, populationData, cellDetails, year) {
+    let cellRadius = cellDetails.radius;
+    let cellShape = cellDetails.shape;
+    let cellScale = cellDetails.scale;
+    let shapeDistance = _shaper.getRadius(cellRadius, cellShape);
     let cols = _constants.width / shapeDistance;
     let rows = _constants.height / shapeDistance;
     let pointGrid = d3.range(rows * cols).map(function(el, i) {
@@ -709,8 +733,7 @@ function render(topo, populationData, radius, cellShape, year) {
         };
     });
     var populationJson = indexByCode(populationData);
-    var totalPopulation = getTotalPopulation(populationData, year);
-    console.log(totalPopulation);
+    var totalPopulation = _util.getTotalPopulation(populationData, year);
     var topoCartogram = _catogramDefault.default().projection(null).properties(function(d) {
         return d.properties;
     }).value(function(d) {
@@ -722,9 +745,9 @@ function render(topo, populationData, radius, cellShape, year) {
         var currentValue = populationJson[d.properties.id][year];
         return +currentValue;
     });
-    var topoFeatures = topoCartogram(topo, topo.objects.tiles.geometries).features;
+    var topoFeatures = topoCartogram(topo, topo.objects.tiles.geometries, cellDetails, populationData, year).features;
     exportFormat(topoFeatures);
-    let newHexbin = _d3Hexbin.hexbin().radius(radius).x(function(d) {
+    let newHexbin = _d3Hexbin.hexbin().radius(cellRadius).x(function(d) {
         return d.x;
     }).y(function(d) {
         return d.y;
@@ -757,14 +780,6 @@ function indexByCode(data) {
     for(var x in data)obj[data[x].code] = data[x];
     return obj;
 }
-function getTotalPopulation(data, year) {
-    var total = 0;
-    for(var x in data){
-        var count = data[x][year];
-        if (!isNaN(count)) total = total + Number(data[x][year]);
-    }
-    return total;
-}
 function setCellSize(totalPopulation, cellCount) {
     document.getElementById("cell-size").value = (totalPopulation / (cellCount * 1000000)).toFixed(1) + "M";
 }
@@ -791,7 +806,7 @@ function exportFormat(topoFeatures) {
     }
 }
 
-},{"d3-hexbin":"hSaFo","./catogram":"kKV7s","./shaper":"jvMST","./events":"2MPtM","./constants":"68kaV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hSaFo":[function(require,module,exports) {
+},{"d3-hexbin":"hSaFo","./catogram":"kKV7s","./shaper":"jvMST","./events":"2MPtM","./constants":"68kaV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./util":"iAHyo"}],"hSaFo":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "hexbin", ()=>_hexbinDefault.default
@@ -903,6 +918,8 @@ parcelHelpers.defineInteropFlag(exports);
 var _d3Array = require("d3-array");
 var _d3Geo = require("d3-geo");
 var _topojsonClient = require("topojson-client");
+var _util = require("./util");
+var _constants = require("./constants");
 // Original source code @shawnbot/topogram
 exports.default = function() {
     var iterations = 8, projection = _d3Geo.geoAlbers(), properties = function(id) {
@@ -910,8 +927,8 @@ exports.default = function() {
     }, value = function(d) {
         return 1;
     };
-    function cartogram(topology, geometries) {
-        topology = copy(topology);
+    function cartogram(topology, geometries, cellDetails, populationData, year) {
+        topology = _util.copyTopo(topology);
         var tf = transformer(topology.transform), x, y, len1, i1, out1, len2 = topology.arcs.length, i2 = 0, projectedArcs = new Array(len2);
         while(i2 < len2){
             x = 0;
@@ -940,12 +957,13 @@ exports.default = function() {
             };
         });
         var values = objects.map(value), totalValue = _d3Array.sum(values);
+        var pFactor = populationFactor(cellDetails.scale, populationData, year);
         if (iterations <= 0) return objects;
         var i = 0;
         while((i++) < iterations){
             var areas = objects.map(path.area);
             var totalArea = _d3Array.sum(areas), sizeErrorsTot = 0, sizeErrorsNum = 0, meta = objects.map(function(o, j) {
-                var area = Math.abs(areas[j]), v = +values[j], desired = totalArea * v / totalValue, radius = Math.sqrt(area / Math.PI), mass = Math.sqrt(desired / Math.PI) - radius, sizeError = Math.max(area, desired) / Math.min(area, desired);
+                var area = Math.abs(areas[j]), v = +values[j], desired = totalArea * v / (totalValue * pFactor), radius = Math.sqrt(area / Math.PI), mass = Math.sqrt(desired / Math.PI) - radius, sizeError = Math.max(area, desired) / Math.min(area, desired);
                 sizeErrorsTot += sizeError;
                 sizeErrorsNum++;
                 return {
@@ -981,8 +999,8 @@ exports.default = function() {
                         distSquared = dx * dx + dy * dy;
                         dist = Math.sqrt(distSquared);
                         Fij = dist > radius1 ? mass1 * radius1 / dist : mass1 * (distSquared / rSquared) * (4 - 3 * dist / radius1);
-                        delta[0] += Fij * cosArctan(dy, dx);
-                        delta[1] += Fij * sinArctan(dy, dx);
+                        delta[0] += Fij * _util.cosArctan(dy, dx);
+                        delta[1] += Fij * _util.sinArctan(dy, dx);
                         i3++;
                     }
                     projectedArcs[i2][i1][0] += delta[0] * forceReductionFactor;
@@ -998,29 +1016,21 @@ exports.default = function() {
             arcs: projectedArcs
         };
     }
-    function cosArctan(dx, dy) {
-        if (dy === 0) return 0;
-        var div = dx / dy;
-        return dy > 0 ? 1 / Math.sqrt(1 + div * div) : -1 / Math.sqrt(1 + div * div);
-    }
-    function sinArctan(dx, dy) {
-        if (dy === 0) return 1;
-        var div = dx / dy;
-        return dy > 0 ? div / Math.sqrt(1 + div * div) : -div / Math.sqrt(1 + div * div);
-    }
-    function copy(o) {
-        return o instanceof Array ? o.map(copy) : typeof o === "string" || typeof o === "number" ? o : copyObject(o);
-    }
-    function copyObject(o) {
-        var obj = {};
-        for(var k in o)obj[k] = copy(o[k]);
-        return obj;
+    function populationFactor(selectedScale, populationData, year) {
+        switch(selectedScale){
+            case _constants.cellScale.Fixed:
+                var factor = _util.getTotalPopulation(populationData, 2018) / _util.getTotalPopulation(populationData, year) / 1.6;
+                if (factor > 0.8) return factor;
+                else return 1;
+            case _constants.cellScale.Fluid:
+                return 1;
+        }
     }
     function object(arcs1, o1) {
         function arc(i, points) {
             if (points.length) points.pop();
             for(var a = arcs1[i < 0 ? ~i : i], k = 0, n = a.length; k < n; ++k)points.push(a[k]);
-            if (i < 0) reverse(points, n);
+            if (i < 0) _util.reverse(points, n);
         }
         function line(arcs) {
             var points = [];
@@ -1044,10 +1054,6 @@ exports.default = function() {
             }
         };
         return o1.type === "GeometryCollection" ? (o1 = Object.create(o1), o1.geometries = o1.geometries.map(geometry), o1) : geometry(o1);
-    }
-    function reverse(array, n) {
-        var t, j = array.length, i = j - n;
-        while(i < --j)t = array[i], array[i++] = array[j], array[j] = t;
     }
     cartogram.path = _d3Geo.geoPath().projection(null);
     cartogram.iterations = function(i) {
@@ -1114,7 +1120,7 @@ exports.default = function() {
     return cartogram;
 };
 
-},{"d3-array":"1yX2W","d3-geo":"01Z75","topojson-client":"ciUQq","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1yX2W":[function(require,module,exports) {
+},{"d3-array":"1yX2W","d3-geo":"01Z75","topojson-client":"ciUQq","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./util":"iAHyo","./constants":"68kaV"}],"1yX2W":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "bisect", ()=>_bisectJsDefault.default
@@ -4156,7 +4162,51 @@ exports.default = function(transform) {
     };
 };
 
-},{"./identity.js":"2mfyf","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jvMST":[function(require,module,exports) {
+},{"./identity.js":"2mfyf","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iAHyo":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getTotalPopulation", ()=>getTotalPopulation
+);
+parcelHelpers.export(exports, "cosArctan", ()=>cosArctan
+);
+parcelHelpers.export(exports, "sinArctan", ()=>sinArctan
+);
+parcelHelpers.export(exports, "reverse", ()=>reverse
+);
+parcelHelpers.export(exports, "copyTopo", ()=>copyTopo
+);
+function getTotalPopulation(data, year) {
+    var total = 0;
+    for(var x in data){
+        var count = data[x][year];
+        if (!isNaN(count)) total = total + Number(data[x][year]);
+    }
+    return total;
+}
+function cosArctan(dx, dy) {
+    if (dy === 0) return 0;
+    var div = dx / dy;
+    return dy > 0 ? 1 / Math.sqrt(1 + div * div) : -1 / Math.sqrt(1 + div * div);
+}
+function sinArctan(dx, dy) {
+    if (dy === 0) return 1;
+    var div = dx / dy;
+    return dy > 0 ? div / Math.sqrt(1 + div * div) : -div / Math.sqrt(1 + div * div);
+}
+function reverse(array, n) {
+    var t, j = array.length, i = j - n;
+    while(i < --j)t = array[i], array[i++] = array[j], array[j] = t;
+}
+function copyTopo(o) {
+    return o instanceof Array ? o.map(copyTopo) : typeof o === "string" || typeof o === "number" ? o : copyObject(o);
+}
+function copyObject(o) {
+    var obj = {};
+    for(var k in o)obj[k] = copyTopo(o[k]);
+    return obj;
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jvMST":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "rightRoundedRect", ()=>rightRoundedRect
