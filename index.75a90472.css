@@ -1,0 +1,156 @@
+.round-right {
+  border-radius: 5px 0 0 5px;
+}
+
+.round-left {
+  border-radius: 0 5px 5px 0;
+}
+
+.footer {
+  height: 35px;
+  background-color: #fff;
+  font-size: small;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.form-control:focus, .btn:focus, .form-select:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.content {
+  margin-top: 15px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#container {
+  cursor: pointer;
+}
+
+.loader-container {
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: fixed;
+}
+
+#download, #cell-shape {
+  color: #fff;
+  text-decoration: none;
+}
+
+.loader, #page-loader {
+  z-index: 3;
+  width: 60px;
+  height: 60px;
+  border: 6px solid #f3f3f3;
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.hide {
+  display: none !important;
+}
+
+.right {
+  float: right;
+}
+
+.left {
+  float: left;
+}
+
+.center {
+  margin: auto;
+  position: absolute;
+  inset: 0;
+}
+
+.height-30 {
+  height: 30px;
+}
+
+.sidenav {
+  height: 100%;
+  width: 0;
+  z-index: 1;
+  background-color: #fdfdfd;
+  border-right: 1px solid #d0d2d3;
+  padding-top: 25px;
+  transition: all;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
+}
+
+.sidenav span {
+  font-size: 15px;
+}
+
+.sidenav .closebtn {
+  color: #000;
+  margin-left: 50px;
+  font-size: 36px;
+  text-decoration: none;
+  position: absolute;
+  top: 0;
+  right: 25px;
+}
+
+.closebtn:hover {
+  color: gray;
+}
+
+.info-button {
+  border: 1px solid #ced4da;
+}
+
+.info-button:hover {
+  border: 1px solid #000;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {
+    padding-top: 15px;
+  }
+
+  .sidenav a {
+    font-size: 15px;
+  }
+}
+
+.padding-10 {
+  padding-top: 10px;
+}
+
+/*# sourceMappingURL=index.75a90472.css.map */
