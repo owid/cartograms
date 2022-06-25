@@ -1,12 +1,13 @@
 import { outputFileType } from "./core/constants";
 
 export function download(fileType, year) {
+  console.log(fileType, year);
   var filename = "cartogram" + year;
   switch (fileType) {
     case outputFileType.GeoJSON:
       downloadObjectAsJson(exportJson, filename);
     case outputFileType.SVG:
-      d3.select("#download").each(function () {
+      d3.select("#select-download").each(function () {
         d3.select(this)
           .attr(
             "href",

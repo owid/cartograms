@@ -1,5 +1,6 @@
 import { hexbin } from "d3-hexbin";
 import cartogram from "./catogram";
+import { getTotalPopulation } from "./util";
 import { getRadius, getGridData, getTransformation, getPath } from "./shaper";
 import {
   mover,
@@ -17,8 +18,12 @@ export var exportJson = {
   features: [],
 };
 
-export function render(topo, populationData, radius, cellShape, year) {
-  let shapeDistance = getRadius(radius, cellShape);
+export function render(topo, populationData, cellDetails, year) {
+  let cellRadius = cellDetails.radius;
+  let cellShape = cellDetails.shape;
+  let cellScale = cellDetails.scale;
+  
+  let shapeDistance = getRadius(cellRadius, cellShape);
   let cols = width / shapeDistance;
   let rows = height / shapeDistance;
   let pointGrid = d3.range(rows * cols).map(function (el, i) {
@@ -31,8 +36,6 @@ export function render(topo, populationData, radius, cellShape, year) {
 
   var populationJson = indexByCode(populationData);
   var totalPopulation = getTotalPopulation(populationData, year);
-
-  console.log(totalPopulation);
 
   var topoCartogram = cartogram()
     .projection(null)
@@ -51,12 +54,14 @@ export function render(topo, populationData, radius, cellShape, year) {
 
   var topoFeatures = topoCartogram(
     topo,
-    topo.objects.tiles.geometries
+    topo.objects.tiles.geometries,
+    cellDetails,
+    populationData, year
   ).features;
   exportFormat(topoFeatures);
 
   let newHexbin = hexbin()
-    .radius(radius)
+    .radius(cellRadius)
     .x(function (d) {
       return d.x;
     })
@@ -141,17 +146,6 @@ function indexByCode(data) {
     obj[data[x].code] = data[x];
   }
   return obj;
-}
-
-function getTotalPopulation(data, year) {
-  var total = 0;
-  for (var x in data) {
-    var count = data[x][year];
-    if (!isNaN(count)) {
-      total = total + Number(data[x][year]);
-    }
-  }
-  return total;
 }
 
 function setCellSize(totalPopulation, cellCount) {

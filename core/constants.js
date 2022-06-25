@@ -40,3 +40,8 @@ export const outputFileType = {
   SVG: "SVG",
   GeoJSON: "GeoJSON",
 };
+
+export const cellScale = {
+  Fixed: "Fixed",
+  Fluid: "Fluid",
+};
