@@ -1,5 +1,6 @@
 import { hexbin } from "d3-hexbin";
 import cartogram from "./catogram";
+import { getTotalPopulation } from "./util";
 import { getRadius, getGridData, getTransformation, getPath } from "./shaper";
 import {
   mover,
@@ -17,8 +18,12 @@ export var exportJson = {
   features: [],
 };
 
-export function render(topo, populationData, radius, cellShape, year) {
-  let shapeDistance = getRadius(radius, cellShape);
+export function render(topo, populationData, cellDetails, year) {
+  let cellRadius = cellDetails.radius;
+  let cellShape = cellDetails.shape;
+  let cellScale = cellDetails.scale;
+  
+  let shapeDistance = getRadius(cellRadius, cellShape);
   let cols = width / shapeDistance;
   let rows = height / shapeDistance;
   let pointGrid = d3.range(rows * cols).map(function (el, i) {
@@ -30,6 +35,7 @@ export function render(topo, populationData, radius, cellShape, year) {
   });
 
   var populationJson = indexByCode(populationData);
+  var totalPopulation = getTotalPopulation(populationData, year);
 
   var topoCartogram = cartogram()
     .projection(null)
@@ -48,12 +54,14 @@ export function render(topo, populationData, radius, cellShape, year) {
 
   var topoFeatures = topoCartogram(
     topo,
-    topo.objects.tiles.geometries
+    topo.objects.tiles.geometries,
+    cellDetails,
+    populationData, year
   ).features;
   exportFormat(topoFeatures);
 
   let newHexbin = hexbin()
-    .radius(radius)
+    .radius(cellRadius)
     .x(function (d) {
       return d.x;
     })
@@ -86,6 +94,7 @@ export function render(topo, populationData, radius, cellShape, year) {
     .on("click", mclickBase);
 
   let features = flattenFeatures(topoFeatures);
+  let cellCount = 0;
   for (let i = 0; i < features.length; i++) {
     for (let j = 0; j < features[i].coordinates.length; j++) {
       var polygonPoints = features[i].coordinates[j];
@@ -94,6 +103,7 @@ export function render(topo, populationData, radius, cellShape, year) {
         if (d3.polygonContains(polygonPoints, [el.x, el.y])) arr.push(el);
         return arr;
       }, []);
+      cellCount = cellCount + tessellatedPoints.length;
 
       svg
         .append("g")
@@ -126,6 +136,8 @@ export function render(topo, populationData, radius, cellShape, year) {
         );
     }
   }
+
+  setCellSize(totalPopulation, cellCount);
 }
 
 function indexByCode(data) {
@@ -134,6 +146,11 @@ function indexByCode(data) {
     obj[data[x].code] = data[x];
   }
   return obj;
+}
+
+function setCellSize(totalPopulation, cellCount) {
+  document.getElementById("cell-size").value =
+    (totalPopulation / (cellCount * 1000000)).toFixed(1) + "M";
 }
 
 function flattenFeatures(topoFeatures) {

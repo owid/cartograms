@@ -20,32 +20,42 @@
       <div class="loader"></div>
     </div>
 
-    <input class="left form-control form-control-sm round-right" style="width: 50px; margin-left: 40px;" type="number"
+    <input class="left form-control form-control-sm round-right" style="width: 60px; margin-left: 40px;" type="text"
+      id="cell-size" name="cell-size" min="1" max="12" value="2" disabled/>
+    <select id="cell-scale" class="left form-select form-select-sm round-none"
+    style="width: 105px;">
+      <option>Fluid</option>
+      <option>Fixed</option>
+    </select>
+    <input type="button" value="Scale" class="left btn btn-sm btn-warning round-left"
+      id="select-cell-scale"></input>
+
+    <input class="left form-control form-control-sm round-right" style="width: 50px; margin-left: 10px;" type="number"
       id="radius" name="radius" min="1" max="12" value="4" />
-    <input type="button" value="Select Radius" class="left btn btn-sm btn-success round-left"
+    <input type="button" value="Radius" class="left btn btn-sm btn-success round-left"
       id="select-radius"></input>
 
     <span class="left">&nbsp;&nbsp; </span>
 
     <input class="left form-control form-control-sm round-right" style="width: 80px;" type="number" id="year"
       name="year" min="1950" max="2100" value="2022" />
-    <input type="button" value="Select Year" class="left btn btn-sm btn-success round-left" id="select-year"></input>
+    <input type="button" value="Year" class="left btn btn-sm btn-success round-left" id="select-year"></input>
 
-    <select id="cell-shape-option" class="left form-select form-select-sm round-right"
+    <select id="cell-shape" class="left form-select form-select-sm round-right"
       style="width: 105px; margin-left: 10px;">
       <option>Square</option>
       <option>Hexagon</option>
     </select>
-    <button class="btn btn-sm btn-success left round-left"><a id="cell-shape" href="#">Select Shape</button>
+    <button class="btn btn-sm btn-success left round-left"><a id="select-cell-shape" href="#">Shape</button>
 
-    <select id="download-option" class="left form-select form-select-sm round-right"
+    <select id="download" class="left form-select form-select-sm round-right"
       style="width: 100px; margin-left: 10px;">
       <option>SVG</option>
       <option>GeoJSON</option>
     </select>
-    <button class="btn btn-sm btn-secondary left round-left"><a id="download" href="#">Download</button>
+    <button class="btn btn-sm btn-secondary left round-left"><a id="select-download" href="#">Export</button>
 
-    <input type="color" list="presetColors" id="color-option" value="#8e44ad"
+    <input type="color" list="presetColors" id="cell-color" value="#8e44ad"
       class="right form-control form-control-sm round-left" style="width: 100px; height: 2.2em; margin-right: 35px;">
     <datalist id="presetColors">
       <option>#1abc9c</option>
@@ -70,7 +80,7 @@
       <option>#7f8c8d</option>
     </datalist>
 
-    <select id="cell-option" class="right form-select form-select-sm round-right" style="width: 100px;">
+    <select id="cell-action" class="right form-select form-select-sm round-right" style="width: 100px;">
       <option>Add</option>
       <option>Remove</option>
     </select>

@@ -1,6 +1,8 @@
 import { sum } from "d3-array";
 import { geoAlbers, geoPath } from "d3-geo";
 import { feature as topoFeature } from "topojson-client";
+import { getTotalPopulation, cosArctan, sinArctan, copyTopo, reverse } from "./util";
+import { cellScale } from "./constants";
 
 // Original source code @shawnbot/topogram
 export default function () {
@@ -13,8 +15,8 @@ export default function () {
       return 1;
     };
 
-  function cartogram(topology, geometries) {
-    topology = copy(topology);
+  function cartogram(topology, geometries, cellDetails, populationData, year) {
+    topology = copyTopo(topology);
     var tf = transformer(topology.transform),
       x,
       y,
@@ -59,6 +61,8 @@ export default function () {
     var values = objects.map(value),
       totalValue = sum(values);
 
+    var pFactor = populationFactor(cellDetails.scale, populationData, year);
+
     if (iterations <= 0) {
       return objects;
     }
@@ -72,7 +76,7 @@ export default function () {
         meta = objects.map(function (o, j) {
           var area = Math.abs(areas[j]),
             v = +values[j],
-            desired = (totalArea * v) / totalValue,
+            desired = (totalArea * v) / (totalValue * pFactor),
             radius = Math.sqrt(area / Math.PI),
             mass = Math.sqrt(desired / Math.PI) - radius,
             sizeError = Math.max(area, desired) / Math.min(area, desired);
@@ -150,34 +154,21 @@ export default function () {
     };
   }
 
-  function cosArctan(dx, dy) {
-    if (dy === 0) return 0;
-    var div = dx / dy;
-    return dy > 0
-      ? 1 / Math.sqrt(1 + div * div)
-      : -1 / Math.sqrt(1 + div * div);
-  }
-
-  function sinArctan(dx, dy) {
-    if (dy === 0) return 1;
-    var div = dx / dy;
-    return dy > 0
-      ? div / Math.sqrt(1 + div * div)
-      : -div / Math.sqrt(1 + div * div);
-  }
-
-  function copy(o) {
-    return o instanceof Array
-      ? o.map(copy)
-      : typeof o === "string" || typeof o === "number"
-      ? o
-      : copyObject(o);
-  }
-
-  function copyObject(o) {
-    var obj = {};
-    for (var k in o) obj[k] = copy(o[k]);
-    return obj;
+  function populationFactor(selectedScale, populationData, year) {
+    switch (selectedScale) {
+      case cellScale.Fixed:
+        var factor =
+          getTotalPopulation(populationData, 2018) /
+          getTotalPopulation(populationData, year) /
+          1.6;
+        if (factor > 0.8) {
+          return factor;
+        } else {
+          return 1;
+        }
+      case cellScale.Fluid:
+        return 1;
+    }
   }
 
   function object(arcs, o) {
@@ -217,13 +208,6 @@ export default function () {
     return o.type === "GeometryCollection"
       ? ((o = Object.create(o)), (o.geometries = o.geometries.map(geometry)), o)
       : geometry(o);
-  }
-
-  function reverse(array, n) {
-    var t,
-      j = array.length,
-      i = j - n;
-    while (i < --j) (t = array[i]), (array[i++] = array[j]), (array[j] = t);
   }
 
   cartogram.path = geoPath().projection(null);

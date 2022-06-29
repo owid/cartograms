@@ -6,10 +6,13 @@ document.querySelector("#loader").classList.add("hide");
 let radiusInput = document.querySelector("input#radius");
 let radiusButton = document.querySelector("input#select-radius");
 
-let downloadButton = document.querySelector("#download");
+let cellScaleInput = document.querySelector("#cell-scale");
+let cellScaleButton = document.querySelector("input#select-cell-scale");
 
-let cellShapeButton = document.querySelector("#cell-shape");
-let cellShapeInput = document.querySelector("#cell-shape-option");
+let downloadButton = document.querySelector("#select-download");
+
+let cellShapeInput = document.querySelector("#cell-shape");
+let cellShapeButton = document.querySelector("#select-cell-shape");
 
 let yearInput = document.querySelector("input#year");
 let yearButton = document.querySelector("input#select-year");
@@ -27,19 +30,26 @@ yearButton.addEventListener("click", () => {
 });
 
 downloadButton.addEventListener("click", () => {
-  let fileType = document.querySelector("#download-option").value;
+  let fileType = document.querySelector("#download").value;
   download(fileType, yearInput.value);
 });
 
 cellShapeButton.addEventListener("click", () => {
-  cellShapeInput = document.querySelector("#cell-shape-option");
+  cellShapeInput = document.querySelector("#cell-shape");
+  document.querySelector("#loader").classList.remove("hide");
+  load();
+});
+
+cellScaleButton.addEventListener("click", () => {
+  cellScaleInput = document.querySelector("#cell-scale");
   document.querySelector("#loader").classList.remove("hide");
   load();
 });
 
 function load() {
-  let hexRadius = radiusInput.value;
+  let cellRadius = radiusInput.value;
   let cellShape = cellShapeInput.value;
+  let cellScale = cellScaleInput.value;
   let year = yearInput.value;
 
   const topoData = d3.json(
@@ -51,7 +61,12 @@ function load() {
 
   Promise.all([topoData, popData]).then((res) => {
     let [topoData, popData] = res;
-    render(topoData, popData, hexRadius, cellShape, year);
+    let cellDetails = {
+      radius: cellRadius,
+      shape: cellShape,
+      scale: cellScale,
+    };
+    render(topoData, popData, cellDetails, year);
     document.querySelector("#loader").classList.add("hide");
   });
 }
