@@ -11,17 +11,16 @@ import {
   dragged,
   dragended,
 } from "./events";
-import { colors, margin, width, height, strokeWidth } from "./constants";
+import { colors, margin, width, height, strokeWidth, cellScale } from "./constants";
 
 export var exportJson = {
   type: "FeatureCollection",
   features: [],
 };
 
-export function render(topo, populationData, cellDetails, year) {
+export function render(topo, populationData, cellDetails, year, populationFactor) {
   let cellRadius = cellDetails.radius;
   let cellShape = cellDetails.shape;
-  let cellScale = cellDetails.scale;
   
   let shapeDistance = getRadius(cellRadius, cellShape);
   let cols = width / shapeDistance;
@@ -56,7 +55,8 @@ export function render(topo, populationData, cellDetails, year) {
     topo,
     topo.objects.tiles.geometries,
     cellDetails,
-    populationData, year
+    populationData, year,
+    populationFactor
   ).features;
   exportFormat(topoFeatures);
 
@@ -137,7 +137,25 @@ export function render(topo, populationData, cellDetails, year) {
     }
   }
 
-  setCellSize(totalPopulation, cellCount);
+  var cellSize = getCellSize(totalPopulation, cellCount);
+  
+  switch (cellDetails.scale) {
+    case cellScale.Fixed:
+      if (cellSize > 1.0) {
+        console.log(">", cellSize, populationFactor);
+        render(topo, populationData, cellDetails, year, populationFactor + 0.1);
+      } else if (cellSize < 1.0) {
+        console.log("<", cellSize, populationFactor);
+        render(topo, populationData, cellDetails, year, populationFactor - 0.1);
+      } else {
+        console.log("=", cellSize, populationFactor);
+        setCellSize(cellSize);
+      }
+      break;
+    case cellScale.Fluid:
+      setCellSize(cellSize);
+  }
+  
 }
 
 function indexByCode(data) {
@@ -148,9 +166,12 @@ function indexByCode(data) {
   return obj;
 }
 
-function setCellSize(totalPopulation, cellCount) {
-  document.getElementById("cell-size").value =
-    (totalPopulation / (cellCount * 1000000)).toFixed(1) + "M";
+function setCellSize(cellSize) {
+  document.getElementById("cell-size").value = cellSize + "M";
+}
+
+function getCellSize(totalPopulation, cellCount) {
+  return (totalPopulation / (cellCount * 1000000)).toFixed(1);
 }
 
 function flattenFeatures(topoFeatures) {

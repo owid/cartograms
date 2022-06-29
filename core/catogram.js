@@ -15,7 +15,7 @@ export default function () {
       return 1;
     };
 
-  function cartogram(topology, geometries, cellDetails, populationData, year) {
+  function cartogram(topology, geometries, cellDetails, populationData, year, populationFactor) {
     topology = copyTopo(topology);
     var tf = transformer(topology.transform),
       x,
@@ -61,7 +61,7 @@ export default function () {
     var values = objects.map(value),
       totalValue = sum(values);
 
-    var pFactor = populationFactor(cellDetails.scale, populationData, year);
+    var pFactor = getPopulationFactor(cellDetails.scale, populationData, year, populationFactor);
 
     if (iterations <= 0) {
       return objects;
@@ -154,18 +154,14 @@ export default function () {
     };
   }
 
-  function populationFactor(selectedScale, populationData, year) {
+  function getPopulationFactor(selectedScale, populationData, year, populationFactor) {
     switch (selectedScale) {
       case cellScale.Fixed:
         var factor =
           getTotalPopulation(populationData, 2018) /
           getTotalPopulation(populationData, year) /
-          1.6;
-        if (factor > 0.8) {
-          return factor;
-        } else {
-          return 1;
-        }
+          populationFactor;
+        return factor;
       case cellScale.Fluid:
         return 1;
     }
