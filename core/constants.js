@@ -45,3 +45,5 @@ export const cellScale = {
   Fixed: "Fixed",
   Fluid: "Fluid",
 };
+
+export const defaultPopulationFactor = 1.0
