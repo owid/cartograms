@@ -237,8 +237,6 @@ The <code>d</code> attribute in <code>&lt;path&gt;&lt;/path&gt;</code> defines t
 
 <details><summary class="h4" id="tessellationofnpolygons"> 5.5. Plotting a cartogram</summary>
 
-This section is a word in progress, stay tuned! 🤓
-
 <p>The algorithm for generating a cartogram is a variant of continuous area cartograms by James A. Dougenik, Nicholas R. Chrisman, and Duane R. Niemeyer. </p>
 
 <p>The research paper: <a href="http://lambert.nico.free.fr/tp/biblio/Dougeniketal1985.pdf">An Algorithm to Construct Continous Area Cartograms</a>. Without getting into the exact details, line-by-line, the procedure to produce cartograms is as follows: </p>
