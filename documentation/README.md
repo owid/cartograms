@@ -711,7 +711,7 @@ For example: A single point in a point-grid represents the top-right corner of a
 <li>Github Repository: <a href="https://github.com/owid/cartograms">https://github.com/owid/cartograms</a></li>
 </ul>
 
-<p>However, this does not conclude meeting the expected requirement(s). The last pending piece is to generate a new cartogram/topojson after moving the cells. That's a work in progress; stay tuned! <a href="https://pyblog.medium.com/subscribe">Subscribe</a> maybe?</p>
+<p>However, this does not conclude meeting the expected requirement(s). The last pending piece is to generate a new cartogram/topojson after moving the cells. That's a work in progress; stay tuned!
 
 </details>
 
