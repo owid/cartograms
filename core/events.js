@@ -17,7 +17,7 @@ export function mout(d) {
 }
 
 export function mclickBase(d) {
-  let selectElement = document.querySelector("#cell-option");
+  let selectElement = document.querySelector("#cell-action");
   switch (selectElement.value) {
     case cellAction.Remove:
       d3.select(this)
@@ -27,7 +27,7 @@ export function mclickBase(d) {
         .lower();
       break;
     case cellAction.Add:
-      let colorElement = document.querySelector("#color-option");
+      let colorElement = document.querySelector("#cell-color");
       d3.select(this)
         .style("stroke-width", strokeWidth)
         .style("fill", colorElement.value)
@@ -47,13 +47,13 @@ export function mclickBase(d) {
 }
 
 export function mclick(d) {
-  let selectElement = document.querySelector("#cell-option");
+  let selectElement = document.querySelector("#cell-action");
   switch (selectElement.value) {
     case cellAction.Remove:
       d3.select(this).remove();
       break;
     case cellAction.Add:
-      let colorElement = document.querySelector("#color-option");
+      let colorElement = document.querySelector("#cell-color");
       d3.select(this)
         .style("stroke-width", strokeWidth)
         .style("fill", colorElement.value)
@@ -78,7 +78,7 @@ export function dragstarted(event, d) {
 }
 
 export function dragged(event, d) {
-  let cellShape = document.querySelector("#cell-shape-option").value;
+  let cellShape = document.querySelector("#cell-shape").value;
   let hexRadius = document.querySelector("input#radius").value;
   var x = event.x;
   var y = event.y;
