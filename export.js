@@ -5,7 +5,7 @@ export function download(fileType, year) {
   var filename = "cartogram" + year;
   switch (fileType) {
     case outputFileType.GeoJSON:
-      downloadObjectAsJson(exportJson, filename);
+      console.log("Unsupported format")
     case outputFileType.SVG:
       d3.select("#select-download").each(function () {
         d3.select(this)
@@ -17,16 +17,4 @@ export function download(fileType, year) {
           .attr("download", filename + ".svg");
       });
   }
-}
-
-function downloadObjectAsJson(exportObj, exportName) {
-  var dataStr =
-    "data:text/json;charset=utf-8," +
-    encodeURIComponent(JSON.stringify(exportObj));
-  var downloadAnchorNode = document.createElement("a");
-  downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", exportName + ".json");
-  document.body.appendChild(downloadAnchorNode);
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
 }
