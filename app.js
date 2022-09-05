@@ -1,5 +1,6 @@
 import { download } from "./export";
 import { render } from "./core/plot";
+import { defaultPopulationFactor } from "./core/constants"
 
 document.querySelector("#loader").classList.add("hide");
 
@@ -66,7 +67,7 @@ function load() {
       shape: cellShape,
       scale: cellScale,
     };
-    render(topoData, popData, cellDetails, year);
+    render(topoData, popData, cellDetails, year, defaultPopulationFactor);
     document.querySelector("#loader").classList.add("hide");
   });
 }
