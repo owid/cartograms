@@ -78,7 +78,7 @@ export function dragstarted(event, d) {
 }
 
 export function dragged(event, d) {
-  let cellShape = document.querySelector("#cell-shape-option").value;
+  let cellShape = document.querySelector("#cell-shape").value;
   let hexRadius = document.querySelector("input#radius").value;
   var x = event.x;
   var y = event.y;
