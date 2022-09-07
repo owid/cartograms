@@ -28,7 +28,7 @@ export function download(fileType, year) {
       case outputFileType.CSV:
         var csvContent = '';
         exportCsv.forEach(function(row, index) {
-            dataString = row.join(',');
+            var dataString = row.join(',');
             csvContent += index < exportCsv.length ? dataString + '\n' : dataString;
         });
         downloadByMimeType(csvContent, "cartogram.csv", "text/csv;encoding:utf-8")

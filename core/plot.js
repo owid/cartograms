@@ -95,7 +95,6 @@ export function render(topo, populationData, cellDetails, year) {
   for (let i = 0; i < features.length; i++) {
     for (let j = 0; j < features[i].coordinates.length; j++) {
       var polygonPoints = features[i].coordinates[j];
-      console.log("polygonPoints", polygonPoints)
 
       let tessellatedPoints = pointGrid.reduce(function (arr, el) {
         if (d3.polygonContains(polygonPoints, [el.x, el.y])) arr.push(el);
