@@ -10,20 +10,21 @@ import pandas as pd
 from geojson import Feature, Polygon, MultiPolygon, FeatureCollection, dump
 
 
-def export(cells, borders, geo, projected_geo, topo):
-    csv_to_geo(cells, borders, geo)
+def export(cells, borders, geo, projected_geo, topo, radius):
+    csv_to_geo(cells, borders, geo, radius)
     geo_to_projection(geo, projected_geo)
     geo_to_topo(projected_geo, topo)
 
 
-def csv_to_geo(cell_filename, border_filename, geo_filename):
+def csv_to_geo(cell_filename, border_filename, geo_filename, radius):
     """
     :param cell_filename: CSV file of the format: X,Y,CountryCode
     :param border_filename: Export to filename for borders of format: X,Y,PolygonID,CountryCode,BorderType
     :param geo_filename: Export to Geo JSON file name
+    :param radius: Radius of the cell
     :return:
     """
-    population_df = pd.read_csv('data/population.csv')
+    population_df = pd.read_csv('../data/population/unpd.csv')
     cells_df = pd.read_csv(cell_filename)
     country_code_list = pd.unique(cells_df['CountryCode'])
 
@@ -33,9 +34,10 @@ def csv_to_geo(cell_filename, border_filename, geo_filename):
 
     for countryCode in country_code_list:
         country_cells_df = cells_df.loc[cells_df['CountryCode'] == countryCode]
-        country_poly_df = country_cells_df.apply(create_polygon, axis=1)
+        country_poly_df = country_cells_df.apply(create_polygon, radius=radius, axis=1)
         union_polygon = unary_union(country_poly_df.tolist())
 
+        current = 0
         if not population_df.loc[population_df['code'] == countryCode].empty:
             # Current population here refers to the base cartogram: 2018
             current = population_df.loc[population_df['code']
@@ -141,11 +143,12 @@ def geo_to_topo(projected_geo_filename, topo_filename):
                 | npx topoquantize 1e9 > " + topo_filename)
 
 
-def create_polygon(row):
+def create_polygon(row, radius):
+    diameter = radius * 2
     return shpPolygon([(row['X'], row['Y']),
-                       (row['X'] + 1, row['Y']),
-                       (row['X'] + 1, row['Y'] + 1),
-                       (row['X'], row['Y'] + 1)])
+                       (row['X'] + diameter, row['Y']),
+                       (row['X'] + diameter, row['Y'] + diameter),
+                       (row['X'], row['Y'] + diameter)])
 
 
 def generate_plot(cell_filename, border_filename):
@@ -176,13 +179,13 @@ def df_to_tuple(border_df):
 
 
 def main():
-    cells = 'data/base/2018/v1/cells.csv'
-    borders = 'data/output/v1/borders.csv'
-    geo = 'data/output/v1/geo.json'
-    projected_geo = 'data/output/v1/projected_geo.json'
-    topo = 'data/output/v1/topo.json'
+    cells = '../data/output/v1/cells.csv'
+    borders = '../data/output/v1/borders.csv'
+    geo = '../data/output/v1/geo.json'
+    projected_geo = '../data/output/v1/projected_geo.json'
+    topo = '../data/output/v1/topo.json'
 
-    export(cells, borders, geo, projected_geo, topo)
+    export(cells, borders, geo, projected_geo, topo, 4)
 
 
 if __name__ == "__main__":

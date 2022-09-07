@@ -95,16 +95,18 @@ export function render(topo, populationData, cellDetails, year) {
   for (let i = 0; i < features.length; i++) {
     for (let j = 0; j < features[i].coordinates.length; j++) {
       var polygonPoints = features[i].coordinates[j];
-      for (let k = 0; k < polygonPoints.length; k++) {
-        exportCsv[polygonCellCount] = [polygonPoints[k][0], polygonPoints[k][1], features[i].properties.id]
-        polygonCellCount = polygonCellCount + 1;
-      }
+      console.log("polygonPoints", polygonPoints)
 
       let tessellatedPoints = pointGrid.reduce(function (arr, el) {
         if (d3.polygonContains(polygonPoints, [el.x, el.y])) arr.push(el);
         return arr;
       }, []);
       tessellatedCellCount = tessellatedCellCount + tessellatedPoints.length;
+
+      for (let k = 0; k < tessellatedPoints.length; k++) {
+        exportCsv[polygonCellCount] = [tessellatedPoints[k].x, tessellatedPoints[k].y, features[i].properties.id]
+        polygonCellCount = polygonCellCount + 1;
+      }
 
       svg
         .append("g")
