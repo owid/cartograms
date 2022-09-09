@@ -39,6 +39,7 @@ export const cellPolygon = {
 export const outputFileType = {
   SVG: "SVG",
   GeoJSON: "GeoJSON",
+  CSV: "CSV",
 };
 
 export const cellScale = {

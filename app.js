@@ -1,4 +1,4 @@
-import { download } from "./export";
+import { download } from "./core/export";
 import { render } from "./core/plot";
 
 document.querySelector("#loader").classList.add("hide");

@@ -13,10 +13,7 @@ import {
 } from "./events";
 import { colors, margin, width, height, strokeWidth } from "./constants";
 
-export var exportJson = {
-  type: "FeatureCollection",
-  features: [],
-};
+export var exportCsv = [];
 
 export function render(topo, populationData, cellDetails, year) {
   let cellRadius = cellDetails.radius;
@@ -58,7 +55,6 @@ export function render(topo, populationData, cellDetails, year) {
     cellDetails,
     populationData, year
   ).features;
-  exportFormat(topoFeatures);
 
   let newHexbin = hexbin()
     .radius(cellRadius)
@@ -94,7 +90,8 @@ export function render(topo, populationData, cellDetails, year) {
     .on("click", mclickBase);
 
   let features = flattenFeatures(topoFeatures);
-  let cellCount = 0;
+  let tessellatedCellCount = 0;
+  let polygonCellCount = 0;
   for (let i = 0; i < features.length; i++) {
     for (let j = 0; j < features[i].coordinates.length; j++) {
       var polygonPoints = features[i].coordinates[j];
@@ -103,7 +100,12 @@ export function render(topo, populationData, cellDetails, year) {
         if (d3.polygonContains(polygonPoints, [el.x, el.y])) arr.push(el);
         return arr;
       }, []);
-      cellCount = cellCount + tessellatedPoints.length;
+      tessellatedCellCount = tessellatedCellCount + tessellatedPoints.length;
+
+      for (let k = 0; k < tessellatedPoints.length; k++) {
+        exportCsv[polygonCellCount] = [tessellatedPoints[k].x, tessellatedPoints[k].y, features[i].properties.id]
+        polygonCellCount = polygonCellCount + 1;
+      }
 
       svg
         .append("g")
@@ -137,7 +139,7 @@ export function render(topo, populationData, cellDetails, year) {
     }
   }
 
-  setCellSize(totalPopulation, cellCount);
+  setCellSize(totalPopulation, tessellatedCellCount);
 }
 
 function indexByCode(data) {
@@ -170,16 +172,4 @@ function flattenFeatures(topoFeatures) {
     };
   }
   return features;
-}
-
-function exportFormat(topoFeatures) {
-  for (let i = 0; i < topoFeatures.length; i++) {
-    if (topoFeatures[i].geometry.type == "MultiPolygon") {
-      exportJson.features[i] = topoFeatures[i];
-      exportJson.features[i].geometry.type = "MultiPolygon";
-    } else {
-      exportJson.features[i] = topoFeatures[i];
-      exportJson.features[i].geometry.type = "Polygon";
-    }
-  }
 }
