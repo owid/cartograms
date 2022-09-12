@@ -1,4 +1,5 @@
 import os
+import pdb
 import numpy as np
 from matplotlib.collections import PatchCollection
 import matplotlib
@@ -26,8 +27,13 @@ def csv_to_geo(cell_filename, border_filename, geo_filename, radius):
     """
     population_df = pd.read_csv('../data/population/unpd.csv')
     cells_df = pd.read_csv(cell_filename)
+    iso_df = pd.read_csv('../data/iso-3166-1.csv')
+    iso_df = iso_df.rename(columns={'Alpha-3 code':'CountryCode'})
+    iso_df = iso_df.drop(columns=['English short name', 'French short name', 'Alpha-2 code'])
+    map = dict(zip(iso_df['Numeric'], iso_df['CountryCode']))
+    cells_df['CountryCode'] = cells_df['CountryCode'].map(map)
+    cells_df = pd.merge(cells_df, iso_df)
     country_code_list = pd.unique(cells_df['CountryCode'])
-
     feature_list = []
     polygon_id = 0
     borders_df = pd.DataFrame()
@@ -39,6 +45,7 @@ def csv_to_geo(cell_filename, border_filename, geo_filename, radius):
 
         current = 0
         if not population_df.loc[population_df['code'] == countryCode].empty:
+            print("{} present".format(countryCode))
             # Current population here refers to the base cartogram: 2018
             current = population_df.loc[population_df['code']
                                         == countryCode].values[0][4]
