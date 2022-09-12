@@ -21,6 +21,7 @@
     "d3": "^7.4.3",
     "d3-array": "^3.1.6",
     "d3-geo": "^3.0.1",
+    "d3-geo-projection": "^4.0.0",
     "d3-hexbin": "^0.2.2",
     "prettier": "^2.7.1",
     "topojson-client": "^3.1.0",
