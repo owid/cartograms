@@ -173,3 +173,14 @@ function flattenFeatures(topoFeatures) {
   }
   return features;
 }
+
+export function generate(topo, populationData, cellDetails, year) {
+  let exportDetails = {
+    csvContent: [],
+    tessellatedPoints: [],
+    tessellatedCellCount: 0,
+  };
+  
+  
+  return exportDetails;
+}
