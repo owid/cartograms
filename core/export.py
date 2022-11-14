@@ -192,7 +192,7 @@ def main():
     projected_geo = '../data/output/v1/projected_geo.json'
     topo = '../data/output/v1/topo.json'
 
-    export(cells, borders, geo, projected_geo, topo, 4)
+    export(cells, borders, geo, projected_geo, topo, 12)
 
 
 if __name__ == "__main__":
